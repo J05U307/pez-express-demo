@@ -1,0 +1,14 @@
+# ─── Secretos ───────────────────────────────
+.env
+.env.local
+.env.production
+
+# ─── Docker volúmenes locales ────────────────
+mysql_data/
+
+# ─── OS ─────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+#IDE
+.idea/

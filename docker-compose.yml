@@ -1,0 +1,77 @@
+services:
+
+  # ─────────────────────────────────────────────
+  # BASE DE DATOS - MySQL
+  # ─────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: pez_express_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: America/Lima
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - pez_express_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ─────────────────────────────────────────────
+  # BACKEND - Spring Boot
+  # ─────────────────────────────────────────────
+  backend:
+    build:
+      context: ./pez_express_backend
+      dockerfile: Dockerfile
+    container_name: pez_express_backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Lima
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL}
+      TZ: America/Lima
+    networks:
+      - pez_express_net
+    # No exponemos el puerto 8080 al exterior,
+    # solo el frontend (Nginx) puede hablar con él internamente
+
+  # ─────────────────────────────────────────────
+  # FRONTEND - React/Vite + Nginx
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./pez_express_frontend
+      dockerfile: Dockerfile
+    container_name: pez_express_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"       # HTTP  → acceso público
+      # - "443:443"   # HTTPS → descomentar cuando tengas SSL
+    networks:
+      - pez_express_net
+
+# ─────────────────────────────────────────────
+# VOLÚMENES Y REDES
+# ─────────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  pez_express_net:
+    driver: bridge
