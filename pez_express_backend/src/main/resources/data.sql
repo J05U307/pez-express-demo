@@ -13,3 +13,8 @@ VALUES (
     '$2a$10$TU_HASH_GENERADO_AQUI',
     'ACTIVO', 1, 1
 );
+
+
+-- Puedes usar este hash si no quieres crear una constraseña con TestPassword.java: 
+-- $2a$10$VQeDJZWQUx8WrSx2qvBkgeEs6tZLyWjP/4QdSj4zQxitbzATeOM2e
+-- Contraseña: admin123

@@ -82,7 +82,7 @@ Luego, abre el archivo:
 pez_express_backend/src/main/resources/data.sql
 ```
 
-Y reemplaza el campo `password` con el hash generado:
+Y reemplaza el campo `password` con el hash generado, o solo puedes remplazar con el siguiente hash que esta el archivo data.sql :
 
 ```sql
 .
